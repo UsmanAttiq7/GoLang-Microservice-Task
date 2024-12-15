@@ -38,7 +38,7 @@ func main() {
 	defer database.Close()
 
 	rideStore := store.NewPGRideStore(database)
-	rideService := service.NewRideService(rideStore)
+	rideService := service.NewRideService(rideStore, log)
 
 	// Start gRPC server
 	lis, err := net.Listen("tcp", ":50053")
