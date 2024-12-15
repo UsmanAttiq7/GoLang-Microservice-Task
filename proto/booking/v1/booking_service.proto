@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package booking.v1;
+
+option go_package = "proto/booking/v1";
+
+import "shared/v1/shared_messages.proto";
+
+service BookingService {
+  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
+  rpc GetBooking(GetBookingRequest) returns (GetBookingResponse);
+}
+
+message CreateBookingRequest {
+  int32 user_id = 1;
+  shared.v1.Ride ride = 2;
+}
+
+message CreateBookingResponse {
+  shared.v1.Booking booking = 1;
+}
+
+message GetBookingRequest {
+  int32 booking_id = 1;
+}
+
+message GetBookingResponse {
+  string name = 1;
+  string source = 2;
+  string destination = 3;
+  int32 distance = 4;
+  int32 cost = 5;
+  string time = 6;
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package ride.v1;
+
+option go_package = "proto/ride/v1";
+
+import "shared/v1/shared_messages.proto";
+
+service RideService {
+  rpc UpdateRide(UpdateRideRequest) returns (UpdateRideResponse);
+}
+
+message UpdateRideRequest {
+  int32 ride_id = 1;
+  shared.v1.Ride ride = 2;
+}
+
+message UpdateRideResponse {
+  string message = 1;
+}
