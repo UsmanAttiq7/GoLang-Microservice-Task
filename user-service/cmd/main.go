@@ -4,6 +4,7 @@ import (
 	"github.com/golang_falcon_task/user-service/internal/config"
 	"github.com/golang_falcon_task/user-service/internal/db"
 	"github.com/golang_falcon_task/user-service/internal/service"
+	"github.com/golang_falcon_task/user-service/internal/store"
 	pb "github.com/golang_falcon_task/user-service/proto/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -32,7 +33,8 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterUserServiceServer(grpcServer, service.NewUserService(database))
+	userStore := store.NewPGUserStore(database)
+	pb.RegisterUserServiceServer(grpcServer, service.NewUserService(userStore))
 
 	// Enable server reflection
 	reflection.Register(grpcServer)
