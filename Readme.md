@@ -12,9 +12,11 @@ These instructions will get you a copy of the project up and running on your loc
  * **POSTGRES** - The root of the repo contains a docker folder with a `docker-compose` file that will spin up a PG database with initial seed data for the services.
  * **GO** - The services are written in Go. You will need to have Go installed on your machine.
 
-Run `go mod tidy` to install all the dependencies for each service which are defined in the `go.mod` file of each the respective service folder.
+Navigate to a service folder ( _user-service / booking-service / ride-service_ ) and run the following commands to start the service:
 
-Run `go run <service>/cmd/main.go` to start the services.
+* `go mod tidy` to install all the dependencies for each service which are defined in the `go.mod` under each respective service folder.
+
+* `go run ./cmd/main.go` to start the service.
 
 Each service has `.env` pre-configured to run with the docker-compose PG database on port `5432`.
 
