@@ -26,6 +26,9 @@ func main() {
 	}
 	defer database.Close()
 
+	userStore := store.NewPGUserStore(database)
+	userService := service.NewUserService(userStore)
+
 	// Start gRPC server
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
@@ -33,8 +36,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	userStore := store.NewPGUserStore(database)
-	pb.RegisterUserServiceServer(grpcServer, service.NewUserService(userStore))
+	pb.RegisterUserServiceServer(grpcServer, userService)
 
 	// Enable server reflection
 	reflection.Register(grpcServer)

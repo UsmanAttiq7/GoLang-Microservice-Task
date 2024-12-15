@@ -27,6 +27,9 @@ func main() {
 	}
 	defer database.Close()
 
+	bookingStore := store.NewPGBookingStore(database)
+	bookingService := service.NewBookingService(bookingStore)
+
 	// Start gRPC server
 	lis, err := net.Listen("tcp", ":50052")
 	if err != nil {
@@ -34,8 +37,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	bookingStore := store.NewPGBookingStore(database)
-	pb.RegisterBookingServiceServer(grpcServer, service.NewBookingService(bookingStore))
+	pb.RegisterBookingServiceServer(grpcServer, bookingService)
 
 	// Enable reflection for testing
 	reflection.Register(grpcServer)

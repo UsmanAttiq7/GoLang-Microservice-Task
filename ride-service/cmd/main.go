@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/golang_falcon_task/ride-service/internal/store"
 	"log"
 	"net"
 
@@ -26,6 +27,9 @@ func main() {
 	}
 	defer database.Close()
 
+	rideStore := store.NewPGRideStore(database)
+	rideService := service.NewRideService(rideStore)
+
 	// Start gRPC server
 	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
@@ -33,7 +37,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterRideServiceServer(grpcServer, service.NewRideService(database))
+	pb.RegisterRideServiceServer(grpcServer, rideService)
 
 	// Enable reflection for testing
 	reflection.Register(grpcServer)
