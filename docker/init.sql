@@ -6,9 +6,9 @@ name TEXT NOT NULL
 
 -- Seed Users table
 INSERT INTO users (name) VALUES
-('Alice Johnson'),
-('Bob Smith'),
-('Charlie Davis');
+('Usman Attiq'),
+('Adeel Ahmed'),
+('Zaid Iqbal');
 
 -- Create Rides table
 CREATE TABLE rides (
