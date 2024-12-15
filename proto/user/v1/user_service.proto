@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user.v1;
 
-option go_package = "proto/user/v1";
+option go_package = "github.com/golang_falcon_task/user-service/proto/user/v1";
 
 service UserService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse);

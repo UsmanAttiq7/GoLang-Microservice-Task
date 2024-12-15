@@ -2,9 +2,23 @@ syntax = "proto3";
 
 package booking.v1;
 
-option go_package = "proto/booking/v1";
+option go_package = "github.com/golang_falcon_task/proto/booking-service/v1";
 
-import "shared/v1/shared_messages.proto";
+// Booking definition, specific to BookingService
+message Booking {
+  int32 user_id = 1;
+  int32 ride_id = 2;
+  string time = 3; // Timestamp of the booking
+}
+
+// Ride definition, embedded for convenience
+message Ride {
+  int32 ride_id = 1;
+  string source = 2;
+  string destination = 3;
+  int32 distance = 4;  // Distance in kilometers
+  int32 cost = 5;      // Cost in currency units
+}
 
 service BookingService {
   rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
@@ -13,11 +27,11 @@ service BookingService {
 
 message CreateBookingRequest {
   int32 user_id = 1;
-  shared.v1.Ride ride = 2;
+  Ride ride = 2; // Ride is defined within BookingService
 }
 
 message CreateBookingResponse {
-  shared.v1.Booking booking = 1;
+  Booking booking = 1; // Reference Booking within BookingService
 }
 
 message GetBookingRequest {

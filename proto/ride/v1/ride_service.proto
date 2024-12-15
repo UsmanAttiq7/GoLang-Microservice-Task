@@ -2,9 +2,16 @@ syntax = "proto3";
 
 package ride.v1;
 
-option go_package = "proto/ride/v1";
+option go_package = "github.com/golang_falcon_task/proto/ride-service/v1";
 
-import "shared/v1/shared_messages.proto";
+// Ride definition, specific to RideService
+message Ride {
+  int32 ride_id = 1;
+  string source = 2;
+  string destination = 3;
+  int32 distance = 4;  // Distance in kilometers
+  int32 cost = 5;      // Cost in currency units
+}
 
 service RideService {
   rpc UpdateRide(UpdateRideRequest) returns (UpdateRideResponse);
@@ -12,7 +19,7 @@ service RideService {
 
 message UpdateRideRequest {
   int32 ride_id = 1;
-  shared.v1.Ride ride = 2;
+  Ride ride = 2; // Updated Ride details
 }
 
 message UpdateRideResponse {
