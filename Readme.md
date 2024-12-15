@@ -36,3 +36,43 @@ grpcurl -plaintext -d '{"name": "Bilal"}' localhost:50051 user.v1.UserService/Cr
 grpcurl -plaintext -d '{"user_id": 4}' localhost:50051 user.v1.UserService/DeleteUser
 ```
 
+### Booking Service
+After starting the booking service, you can access the booking service on `http://localhost:50052`.
+Use the following grpcurl commands to interact with the booking service:
+
+* Get a Booking by booking_id
+```shell
+grpcurl -plaintext -d '{
+  "booking_id": 1  
+}' localhost:50052 booking.v1.BookingService/GetBooking
+```
+
+* Create a Booking
+```shell
+grpcurl -plaintext -d '{
+  "user_id": 1,
+  "ride": {
+    "source": "Downtown",
+    "destination": "Airport",
+    "distance": 15,
+    "cost": 250
+  }
+}' localhost:50052 booking.v1.BookingService/CreateBooking
+```
+
+### Ride Service
+After starting the ride service, you can access the ride service on `http://localhost:50053`.
+Use the following grpcurl commands to interact with the ride service:
+
+* Update a Ride by ride_id
+```shell
+grpcurl -plaintext -d '{
+  "ride_id": 1,
+  "ride": {
+    "source": "Downtown",
+    "destination": "Mall",
+    "distance": 10,
+    "cost": 200
+  }
+}' localhost:50053 ride.v1.RideService/UpdateRide
+```
