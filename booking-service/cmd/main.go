@@ -4,6 +4,7 @@ import (
 	"github.com/golang_falcon_task/booking-service/internal/config"
 	"github.com/golang_falcon_task/booking-service/internal/db"
 	"github.com/golang_falcon_task/booking-service/internal/service"
+	"github.com/golang_falcon_task/booking-service/internal/store"
 	"log"
 	"net"
 
@@ -33,7 +34,8 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterBookingServiceServer(grpcServer, service.NewBookingService(database))
+	bookingStore := store.NewPGBookingStore(database)
+	pb.RegisterBookingServiceServer(grpcServer, service.NewBookingService(bookingStore))
 
 	// Enable reflection for testing
 	reflection.Register(grpcServer)

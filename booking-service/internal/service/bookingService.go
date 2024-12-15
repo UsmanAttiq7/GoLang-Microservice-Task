@@ -2,23 +2,29 @@ package service
 
 import (
 	"context"
+	"github.com/golang_falcon_task/booking-service/internal/model"
+	"github.com/golang_falcon_task/booking-service/internal/store"
 	"time"
 
 	pb "github.com/golang_falcon_task/booking-service/proto/booking/v1"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+type BookingStore interface {
+	CreateRide(ctx context.Context, source, destination string, distance, cost int32) (int32, error)
+	CreateBooking(ctx context.Context, userID, rideID int32, bookingTime time.Time) (int32, error)
+	GetBookingDetails(ctx context.Context, bookingID int32) (*model.Booking, *model.User, *model.Ride, error)
+}
+
 type BookingService struct {
-	db *pgxpool.Pool
+	bookingStore BookingStore
 	pb.UnimplementedBookingServiceServer
 }
 
 // NewBookingService initializes a new BookingService with a database connection pool.
-func NewBookingService(db *pgxpool.Pool) *BookingService {
-	return &BookingService{db: db}
+func NewBookingService(store BookingStore) *BookingService {
+	return &BookingService{bookingStore: store}
 }
 
 // CreateBooking handles creating a new booking and its associated ride.
@@ -31,35 +37,26 @@ func (s *BookingService) CreateBooking(ctx context.Context, req *pb.CreateBookin
 		return nil, status.Errorf(codes.InvalidArgument, "ride details must be provided")
 	}
 
-	// Insert a new ride into the database
-	var rideID int32
-	err := s.db.QueryRow(ctx, `
-        INSERT INTO rides (source, destination, distance, cost)
-        VALUES ($1, $2, $3, $4)
-        RETURNING ride_id
-    `, req.Ride.Source, req.Ride.Destination, req.Ride.Distance, req.Ride.Cost).Scan(&rideID)
+	// Create a new ride
+	rideID, err := s.bookingStore.CreateRide(ctx, req.Ride.Source, req.Ride.Destination, req.Ride.Distance, req.Ride.Cost)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create ride: %v", err)
 	}
 
-	// Insert the booking into the database
-	var bookingID int32
-	currentTime := time.Now().Format(time.RFC3339)
-	err = s.db.QueryRow(ctx, `
-        INSERT INTO bookings (user_id, ride_id, time)
-        VALUES ($1, $2, $3)
-        RETURNING booking_id
-    `, req.UserId, rideID, currentTime).Scan(&bookingID)
+	// Create a new booking
+	bookingTime := time.Now()
+	bookingId, err := s.bookingStore.CreateBooking(ctx, req.UserId, rideID, bookingTime)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create booking: %v", err)
 	}
 
-	// Return the newly created booking details
+	// Return the booking details
 	return &pb.CreateBookingResponse{
 		Booking: &pb.Booking{
-			UserId: req.UserId,
-			RideId: rideID,
-			Time:   currentTime,
+			BookingId: bookingId,
+			UserId:    req.UserId,
+			RideId:    rideID,
+			Time:      bookingTime.Format(time.RFC3339),
 		},
 	}, nil
 }
@@ -71,37 +68,22 @@ func (s *BookingService) GetBooking(ctx context.Context, req *pb.GetBookingReque
 		return nil, status.Errorf(codes.InvalidArgument, "invalid booking_id: must be a positive integer")
 	}
 
-	var (
-		name, source, destination string
-		distance, cost            int
-		bookingTime               time.Time // Use time.Time for scanning timestamp
-	)
-
-	// Query the database for the booking details
-	err := s.db.QueryRow(ctx, `
-        SELECT u.name, r.source, r.destination, r.distance, r.cost, b.time
-        FROM bookings b
-        JOIN users u ON b.user_id = u.user_id
-        JOIN rides r ON b.ride_id = r.ride_id
-        WHERE b.booking_id = $1
-    `, req.BookingId).Scan(&name, &source, &destination, &distance, &cost, &bookingTime)
+	// Fetch booking details
+	booking, user, ride, err := s.bookingStore.GetBookingDetails(ctx, req.BookingId)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if err == store.ErrBookingNotFound {
 			return nil, status.Errorf(codes.NotFound, "booking with id %d not found", req.BookingId)
 		}
 		return nil, status.Errorf(codes.Internal, "failed to fetch booking: %v", err)
 	}
 
-	// Format the time as RFC3339
-	formattedTime := bookingTime.Format(time.RFC3339)
-
 	// Return the booking details
 	return &pb.GetBookingResponse{
-		Name:        name,
-		Source:      source,
-		Destination: destination,
-		Distance:    int32(distance),
-		Cost:        int32(cost),
-		Time:        formattedTime,
+		Name:        user.Name,
+		Source:      ride.Source,
+		Destination: ride.Destination,
+		Distance:    ride.Distance,
+		Cost:        ride.Cost,
+		Time:        booking.Timestamp.Format(time.RFC3339),
 	}, nil
 }

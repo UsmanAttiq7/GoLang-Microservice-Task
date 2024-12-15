@@ -6,9 +6,10 @@ option go_package = "github.com/golang_falcon_task/proto/booking-service/v1";
 
 // Booking definition, specific to BookingService
 message Booking {
-  int32 user_id = 1;
-  int32 ride_id = 2;
-  string time = 3; // Timestamp of the booking
+  int32 booking_id = 1;
+  int32 user_id = 2;
+  int32 ride_id = 3;
+  string time = 4; // Timestamp of the booking
 }
 
 // Ride definition, embedded for convenience
