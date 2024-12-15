@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/golang_falcon_task/ride-service/internal/logging"
+	"github.com/golang_falcon_task/ride-service/internal/metrics"
+	"github.com/golang_falcon_task/ride-service/internal/middleware"
 	"github.com/golang_falcon_task/ride-service/internal/store"
-	"log"
 	"net"
 
 	"github.com/golang_falcon_task/ride-service/internal/config"
@@ -14,11 +16,19 @@ import (
 )
 
 func main() {
+	// Initialize logger
+	logging.InitLogger()
+	log := logging.Logger
+
 	// Load configuration
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
+
+	// Initialize metrics
+	metrics.InitMetrics()
+	metrics.StartMetricsServer(":9007")
 
 	// Initialize database
 	database, err := db.InitDB(cfg)
@@ -36,7 +46,12 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			middleware.LoggingInterceptor(log), // Logs all requests and responses
+			middleware.MetricsInterceptor(),    // Captures Prometheus metrics
+		),
+	)
 	pb.RegisterRideServiceServer(grpcServer, rideService)
 
 	// Enable reflection for testing
