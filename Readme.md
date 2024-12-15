@@ -82,3 +82,7 @@ grpcurl -plaintext -d '{
 * User-Service : `http://localhost:9005/metrics`
 * Booking-Service : `http://localhost:9006/metrics`
 * Ride-Service : `http://localhost:9007/metrics`
+
+## Unit Tests
+
+Units tests for the GRPC services can be found under `<service-name>/internal/service/<service-name>_test.go`
