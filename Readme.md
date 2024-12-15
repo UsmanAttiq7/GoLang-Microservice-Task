@@ -1,4 +1,4 @@
-# GO Microservices
+# GO GRPC Microservices
 This repository contains 3 microservices:
  * **User Service**: This service is responsible for user management. 
  * **Booking Service**: This service is responsible for booking management.
@@ -76,3 +76,9 @@ grpcurl -plaintext -d '{
   }
 }' localhost:50053 ride.v1.RideService/UpdateRide
 ```
+
+## Metrics
+
+* User-Service : `http://localhost:9005/metrics`
+* Booking-Service : `http://localhost:9006/metrics`
+* Ride-Service : `http://localhost:9007/metrics`
