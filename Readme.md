@@ -1,5 +1,5 @@
 # GO GRPC Microservices
-This repository contains 3 microservices:
+This repository contains 3 GRPC microservices:
  * **User Service**: This service is responsible for user management. 
  * **Booking Service**: This service is responsible for booking management.
  * **Ride Service**: This service is responsible for ride management.
