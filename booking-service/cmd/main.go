@@ -38,7 +38,7 @@ func main() {
 	defer database.Close()
 
 	bookingStore := store.NewPGBookingStore(database)
-	bookingService := service.NewBookingService(bookingStore)
+	bookingService := service.NewBookingService(bookingStore, log)
 
 	// Start gRPC server
 	lis, err := net.Listen("tcp", ":50052")
